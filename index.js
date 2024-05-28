@@ -1,28 +1,51 @@
-function insertionSort(arr) {
-    const n = arr.length;
+function dijkstra(graph, start) {
+    // Initialize distances and previous vertices
+    const distances = {};
+    const previous = {};
+    const queue = [];
 
-    for (let i = 1; i < n; i++) {
-        const key = arr[i]; // Element to be inserted into the sorted sequence
-        let j = i - 1;
+    // Set initial distances to Infinity, except for the start vertex
+    for (let vertex in graph) {
+        distances[vertex] = Infinity;
+        previous[vertex] = null;
+    }
+    distances[start] = 0;
+    
+    // Add start vertex to the queue
+    queue.push([start, 0]);
 
-        // Move elements of arr[0..i-1], that are greater than key,
-        // to one position ahead of their current position
-        while (j >= 0 && arr[j] > key) {
-            arr[j + 1] = arr[j];
-            j--;
+    // Process the queue
+    while (queue.length > 0) {
+        // Sort queue by distance (priority queue functionality)
+        queue.sort((a, b) => a[1] - b[1]);
+        const [currentVertex, currentDistance] = queue.shift();
+        
+        // Visit each neighbor of the current vertex
+        for (let neighbor in graph[currentVertex]) {
+            const weight = graph[currentVertex][neighbor];
+            const distance = currentDistance + weight;
+            
+            // If a shorter path is found
+            if (distance < distances[neighbor]) {
+                distances[neighbor] = distance;
+                previous[neighbor] = currentVertex;
+                queue.push([neighbor, distance]);
+            }
         }
-
-        // Place the key (arr[i]) into its correct position in the sorted sequence
-        arr[j + 1] = key;
     }
 
-    return arr;
+    return distances;
 }
 
-// Example usage:
-const arrayToSort = [12, 11, 13, 5, 6];
-console.log("Array before sorting:", arrayToSort);
+// Example graph
+const graph = {
+    'A': { 'B': 4, 'C': 2 },
+    'B': { 'A': 4, 'C': 5, 'D': 10 },
+    'C': { 'A': 2, 'B': 5, 'D': 3 },
+    'D': { 'B': 10, 'C': 3 }
+};
 
-insertionSort(arrayToSort);
-
-console.log("Array after sorting:", arrayToSort);
+// Run Dijkstra's algorithm
+const startVertex = 'A';
+const shortestPaths = dijkstra(graph, startVertex);
+console.log(shortestPaths); // Output: { A: 0, B: 4, C: 2, D: 5 }
